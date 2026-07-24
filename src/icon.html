@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="32" height="32"></canvas>
+    <script>
+      // Draws a small ring-gauge with the session % in the middle, then ships
+      // it to the main process as the tray icon. Redraws whenever data changes.
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d");
+
+      function draw(pct) {
+        const S = 32;
+        ctx.clearRect(0, 0, S, S);
+        const cx = S / 2,
+          cy = S / 2,
+          r = 13;
+        // track
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = "rgba(200,120,90,0.30)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        // progress
+        ctx.strokeStyle = "#d1603d";
+        ctx.lineCap = "butt";
+        const start = -Math.PI / 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, start, start + (Math.PI * 2 * pct) / 100);
+        ctx.stroke();
+        // number
+        ctx.fillStyle = "#c2410c";
+        ctx.font = "bold 13px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(Math.round(pct)), cx, cy + 1);
+        window.battery.setTrayIcon(canvas.toDataURL("image/png"));
+      }
+
+      async function refresh() {
+        const d = await window.battery.getUsage();
+        draw(d.session.usedPct);
+        const mins = Math.round(d.session.remainingMs / 60000);
+        const h = Math.floor(mins / 60),
+          m = mins % 60;
+        window.battery.setTrayTooltip(
+          `Claude Battery — ${d.session.usedPct}% used · ${h}h ${m}m left`
+        );
+      }
+
+      refresh();
+      setInterval(refresh, 30000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+capture*.png
+*.log
+.DS_Store
