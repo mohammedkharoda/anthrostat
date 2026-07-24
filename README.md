@@ -4,7 +4,7 @@ A Windows system-tray gauge for your Claude usage — session (5-hour) and
 weekly limits, extra-usage spend, streaks, a 30-day heat-map, a 7-day usage
 chart, and burn-rate projections. Reads your **real** Claude Code usage logs.
 
-![icon](build/icon.png)
+![Anthrostat screenshot](docs/screenshot.png)
 
 ## Install (no build tools needed)
 
