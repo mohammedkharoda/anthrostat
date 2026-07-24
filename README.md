@@ -90,8 +90,11 @@ powershell ./build-portable.ps1  # produces dist/Anthrostat + installer scripts
 ```
 
 `build-portable.ps1` stages a self-contained app folder (Electron runtime +
-app code) into `dist/Anthrostat`, plus `Install.bat` / `install.ps1` /
-`Uninstall.bat` / `uninstall.ps1` copied from [`installer/`](installer/). Zip
-the whole `dist` folder to reproduce a release asset.
+app code) into `dist/Anthrostat`, strips unused Electron locale files (we ship
+English UI only) and the unused `default_app.asar`, then copies
+`Install.bat` / `install.ps1` / `Uninstall.bat` / `uninstall.ps1` from
+[`installer/`](installer/). Zip the whole `dist` folder to reproduce a release
+asset — the release is packed with 7-Zip's max-compression deflate for a
+smaller download than a default zip.
 
 Data refreshes every 15s in the popover and every 30s on the tray icon.

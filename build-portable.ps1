@@ -12,6 +12,13 @@ New-Item -ItemType Directory -Path $stage -Force | Out-Null
 # 1. Copy the Electron runtime.
 Copy-Item "$eDist\*" $stage -Recurse -Force
 
+# 1b. Trim dead weight: we ship no UI in any language but English, and our own
+# app folder replaces default_app.asar entirely — both are pure download bloat.
+Get-ChildItem (Join-Path $stage "locales") -Filter "*.pak" |
+  Where-Object { $_.Name -ne "en-US.pak" } |
+  Remove-Item -Force
+Remove-Item (Join-Path $stage "resources\default_app.asar") -Force -ErrorAction SilentlyContinue
+
 # 2. Drop our app into resources\app (Electron prefers this over default_app).
 $appDir = Join-Path $stage "resources\app"
 New-Item -ItemType Directory -Path $appDir -Force | Out-Null
