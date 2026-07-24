@@ -1,8 +1,8 @@
-# Assembles a self-contained Claude Battery app folder from the Electron
+# Assembles a self-contained Anthrostat app folder from the Electron
 # runtime + app source, and stamps it with the custom icon. No admin needed.
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
-$stage = Join-Path $root "dist\ClaudeBattery"
+$stage = Join-Path $root "dist\Anthrostat"
 $eDist = Join-Path $root "node_modules\electron\dist"
 
 Write-Host "Staging to $stage"
@@ -22,18 +22,18 @@ Copy-Item (Join-Path $root "src")   (Join-Path $appDir "src")   -Recurse -Force
 Copy-Item (Join-Path $root "build") (Join-Path $appDir "build") -Recurse -Force
 
 # 3. Rename the launcher exe.
-$exe = Join-Path $stage "Claude Battery.exe"
-Rename-Item (Join-Path $stage "electron.exe") "Claude Battery.exe"
+$exe = Join-Path $stage "Anthrostat.exe"
+Rename-Item (Join-Path $stage "electron.exe") "Anthrostat.exe"
 
 # 4. Stamp icon + metadata with rcedit (from electron-builder's cache).
 $rcedit = Get-ChildItem "$env:LOCALAPPDATA\electron-builder\Cache\winCodeSign" -Recurse -Filter "rcedit-x64.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
 $ico = Join-Path $root "build\icon.ico"
 if ($rcedit) {
   & $rcedit.FullName "$exe" --set-icon "$ico" `
-    --set-version-string "ProductName" "Claude Battery" `
-    --set-version-string "FileDescription" "Claude Battery" `
-    --set-version-string "CompanyName" "Claude Battery" `
-    --set-version-string "OriginalFilename" "Claude Battery.exe"
+    --set-version-string "ProductName" "Anthrostat" `
+    --set-version-string "FileDescription" "Anthrostat" `
+    --set-version-string "CompanyName" "Anthrostat" `
+    --set-version-string "OriginalFilename" "Anthrostat.exe"
   Write-Host "Icon + metadata stamped."
 } else {
   Write-Host "rcedit not found - exe will use default Electron icon."

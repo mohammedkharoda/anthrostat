@@ -1,7 +1,7 @@
 {
-  "name": "claude-battery",
+  "name": "anthrostat",
   "version": "0.1.0",
-  "description": "A Claude usage 'battery' for the Windows system tray — session, weekly, extra-usage, streaks and burn-rate projections.",
+  "description": "A Claude usage gauge for the Windows system tray — session, weekly, extra-usage, streaks and burn-rate projections.",
   "main": "main.js",
   "author": "",
   "license": "MIT",
@@ -10,8 +10,8 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.local.claudebattery",
-    "productName": "Claude Battery",
+    "appId": "com.local.anthrostat",
+    "productName": "Anthrostat",
     "directories": { "output": "dist", "buildResources": "build" },
     "files": ["main.js", "preload.js", "src/**/*"],
     "win": {
@@ -24,7 +24,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Claude Battery",
+      "shortcutName": "Anthrostat",
       "runAfterFinish": true
     }
   },

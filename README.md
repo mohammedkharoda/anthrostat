@@ -1,6 +1,6 @@
-# Claude Battery
+# Anthrostat
 
-A Windows system-tray "battery" for your Claude usage — session (5-hour) and
+A Windows system-tray gauge for your Claude usage — session (5-hour) and
 weekly limits, extra-usage spend, streaks, a 30-day heat-map, a 7-day usage
 chart, and burn-rate projections. Reads your **real** Claude Code usage logs.
 
@@ -8,10 +8,10 @@ chart, and burn-rate projections. Reads your **real** Claude Code usage logs.
 
 ## Install (no build tools needed)
 
-1. Grab the latest **`ClaudeBattery-win.zip`** from the [Releases page](../../releases).
+1. Grab the latest **`Anthrostat-win.zip`** from the [Releases page](../../releases).
 2. Extract it anywhere.
 3. Double-click **`Install.bat`**. No admin required. It:
-   - copies the app to `%LOCALAPPDATA%\Claude Battery`
+   - copies the app to `%LOCALAPPDATA%\Anthrostat`
    - creates Desktop + Start-Menu shortcuts
    - launches it into the system tray
 
@@ -68,7 +68,7 @@ opens the popover. Toggle alerts and change the threshold from the gear panel.
 Click the gear in the footer to toggle **Live account data** on/off, choose the
 **refresh interval** (1–10 min), enable **Start at login**, turn **Usage alerts**
 on/off and set their **threshold**. Changes save instantly to
-`~/.claude-battery/settings.json` and take effect without a restart.
+`~/.anthrostat/settings.json` and take effect without a restart.
 
 ### Tunables in [`src/config.js`](src/config.js)
 - `liveEnabled` — set `false` to go fully offline (local estimate only).
@@ -82,15 +82,15 @@ If no logs and no token are found, the app shows representative mock data.
 ## Develop / rebuild from source
 
 ```bash
-git clone https://github.com/<your-username>/claude-battery.git
-cd claude-battery
+git clone https://github.com/mohammedkharoda/anthrostat.git
+cd anthrostat
 npm install
 npm start                        # run from source
-powershell ./build-portable.ps1  # produces dist/ClaudeBattery + installer scripts
+powershell ./build-portable.ps1  # produces dist/Anthrostat + installer scripts
 ```
 
 `build-portable.ps1` stages a self-contained app folder (Electron runtime +
-app code) into `dist/ClaudeBattery`, plus `Install.bat` / `install.ps1` /
+app code) into `dist/Anthrostat`, plus `Install.bat` / `install.ps1` /
 `Uninstall.bat` / `uninstall.ps1` copied from [`installer/`](installer/). Zip
 the whole `dist` folder to reproduce a release asset.
 

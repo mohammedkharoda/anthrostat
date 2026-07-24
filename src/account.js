@@ -21,7 +21,7 @@ const cfg = require("./config");
 const settings = require("./settings");
 
 const CRED = path.join(cfg.claudeDir, ".credentials.json");
-const STATE_DIR = path.join(os.homedir(), ".claude-battery");
+const STATE_DIR = path.join(os.homedir(), ".anthrostat");
 const STATE_FILE = path.join(STATE_DIR, "state.json");
 
 // Public OAuth client id Claude Code uses; refresh endpoint on console.anthropic.com.
@@ -96,7 +96,7 @@ function refreshAccessToken() {
             if (j.expires_in) o.expiresAt = Date.now() + j.expires_in * 1000;
             if (creds.claudeAiOauth) creds.claudeAiOauth = o;
             try {
-              fs.copyFileSync(CRED, CRED + ".claude-battery.bak");
+              fs.copyFileSync(CRED, CRED + ".anthrostat.bak");
             } catch {
               /* backup best-effort */
             }

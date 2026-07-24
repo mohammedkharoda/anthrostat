@@ -91,7 +91,7 @@ function buildTrayMenu() {
 
 function createTray() {
   tray = new Tray(PLACEHOLDER);
-  tray.setToolTip("Claude Battery");
+  tray.setToolTip("Anthrostat");
   buildTrayMenu();
   tray.on("click", () => togglePopover());
   tray.on("right-click", () => tray.popUpContextMenu(trayMenu));
@@ -223,7 +223,7 @@ ipcMain.handle("set-settings", (_e, patch) => {
 
 app.whenReady().then(() => {
   // Required on Windows so notifications show the app name/icon correctly.
-  app.setAppUserModelId("com.local.claudebattery");
+  app.setAppUserModelId("com.local.anthrostat");
 
   createTray();
   createPopover();

@@ -2,7 +2,7 @@
 // settings.js — runtime settings = config.js defaults + persisted overrides.
 //
 // The UI (gear icon) writes overrides here; they persist to
-// ~/.claude-battery/settings.json and win over config.js. Read every value
+// ~/.anthrostat/settings.json and win over config.js. Read every value
 // through settings.get(key) so live changes take effect without a restart.
 // ---------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ const os = require("os");
 const path = require("path");
 const defaults = require("./config");
 
-const FILE = path.join(os.homedir(), ".claude-battery", "settings.json");
+const FILE = path.join(os.homedir(), ".anthrostat", "settings.json");
 
 // Only these keys may be overridden from the UI.
 const ALLOWED = [

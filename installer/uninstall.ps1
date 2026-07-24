@@ -1,14 +1,14 @@
-# Removes Claude Battery for the current user.
+# Removes Anthrostat for the current user.
 $ErrorActionPreference = "SilentlyContinue"
-$dest = Join-Path $env:LOCALAPPDATA "Claude Battery"
+$dest = Join-Path $env:LOCALAPPDATA "Anthrostat"
 
-Get-Process "Claude Battery" | Stop-Process -Force
+Get-Process "Anthrostat" | Stop-Process -Force
 Start-Sleep -Milliseconds 800
 
-Remove-Item (Join-Path ([Environment]::GetFolderPath("Desktop"))  "Claude Battery.lnk") -Force
-Remove-Item (Join-Path ([Environment]::GetFolderPath("Programs")) "Claude Battery.lnk") -Force
+Remove-Item (Join-Path ([Environment]::GetFolderPath("Desktop"))  "Anthrostat.lnk") -Force
+Remove-Item (Join-Path ([Environment]::GetFolderPath("Programs")) "Anthrostat.lnk") -Force
 # Remove the "Start at login" entry if the app created one.
-Remove-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "Claude Battery" -ErrorAction SilentlyContinue
+Remove-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "Anthrostat" -ErrorAction SilentlyContinue
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 
-Write-Host "Claude Battery has been removed."
+Write-Host "Anthrostat has been removed."
