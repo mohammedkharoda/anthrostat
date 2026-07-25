@@ -126,23 +126,109 @@ const outDir = path.join(__dirname, "build");
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, "icon.png"), pngBuf);
 
-// ---------- ICO wrapper (PNG-embedded, Vista+) ----------
+// ---------- downsample (box filter) for the small ICO frames ----------
+function downsample(src, srcSize, dstSize) {
+  const dst = Buffer.alloc(dstSize * dstSize * 4);
+  const scale = srcSize / dstSize;
+  for (let y = 0; y < dstSize; y++) {
+    const y0 = Math.floor(y * scale),
+      y1 = Math.max(y0 + 1, Math.floor((y + 1) * scale));
+    for (let x = 0; x < dstSize; x++) {
+      const x0 = Math.floor(x * scale),
+        x1 = Math.max(x0 + 1, Math.floor((x + 1) * scale));
+      let r = 0,
+        g = 0,
+        b = 0,
+        a = 0,
+        n = 0;
+      for (let sy = y0; sy < y1; sy++) {
+        for (let sx = x0; sx < x1; sx++) {
+          const si = (sy * srcSize + sx) * 4;
+          r += src[si];
+          g += src[si + 1];
+          b += src[si + 2];
+          a += src[si + 3];
+          n++;
+        }
+      }
+      const di = (y * dstSize + x) * 4;
+      dst[di] = Math.round(r / n);
+      dst[di + 1] = Math.round(g / n);
+      dst[di + 2] = Math.round(b / n);
+      dst[di + 3] = Math.round(a / n);
+    }
+  }
+  return dst;
+}
+
+// ---------- classic uncompressed 32bpp DIB frame (for small ICO sizes) ----------
+// Explorer's small-icon paths (Desktop, Start Menu, taskbar) often fail to
+// downscale a lone PNG-compressed ICO frame and silently show a blank icon,
+// so 16/32/48 ship as plain bitmaps; only the 256 frame uses PNG (Vista+).
+function dibFrame(rgba, size) {
+  const rowBytes = size * 4; // 32bpp rows are always 4-byte aligned
+  const andRowBytes = Math.ceil(size / 32) * 4;
+  const header = Buffer.alloc(40);
+  header.writeUInt32LE(40, 0);
+  header.writeInt32LE(size, 4);
+  header.writeInt32LE(size * 2, 8); // doubled: XOR + AND mask
+  header.writeUInt16LE(1, 12);
+  header.writeUInt16LE(32, 14);
+  header.writeUInt32LE(0, 16); // BI_RGB
+  header.writeUInt32LE(size * size * 4, 20);
+
+  const xor = Buffer.alloc(rowBytes * size);
+  for (let y = 0; y < size; y++) {
+    const srcY = size - 1 - y; // DIB rows are bottom-up
+    for (let x = 0; x < size; x++) {
+      const si = (srcY * size + x) * 4;
+      const di = y * rowBytes + x * 4;
+      xor[di] = rgba[si + 2]; // B
+      xor[di + 1] = rgba[si + 1]; // G
+      xor[di + 2] = rgba[si]; // R
+      xor[di + 3] = rgba[si + 3]; // A
+    }
+  }
+  const and = Buffer.alloc(andRowBytes * size); // all-zero: alpha channel handles transparency
+  return Buffer.concat([header, xor, and]);
+}
+
+// ---------- assemble multi-resolution ICO ----------
+const smallSizes = [16, 32, 48];
+const frames = smallSizes.map((size) => ({
+  size,
+  data: dibFrame(downsample(buf, S, size), size),
+}));
+frames.push({ size: 256, data: pngBuf });
+
 const dir = Buffer.alloc(6);
 dir.writeUInt16LE(0, 0); // reserved
 dir.writeUInt16LE(1, 2); // type = icon
-dir.writeUInt16LE(1, 4); // count
-const entry = Buffer.alloc(16);
-entry[0] = 0; // width 256 -> 0
-entry[1] = 0; // height 256 -> 0
-entry[2] = 0; // colors
-entry[3] = 0; // reserved
-entry.writeUInt16LE(1, 4); // planes
-entry.writeUInt16LE(32, 6); // bpp
-entry.writeUInt32LE(pngBuf.length, 8);
-entry.writeUInt32LE(6 + 16, 12); // offset
+dir.writeUInt16LE(frames.length, 4);
+
+let offset = 6 + frames.length * 16;
+const entries = [];
+for (const f of frames) {
+  const entry = Buffer.alloc(16);
+  entry[0] = f.size === 256 ? 0 : f.size;
+  entry[1] = f.size === 256 ? 0 : f.size;
+  entry[2] = 0;
+  entry[3] = 0;
+  entry.writeUInt16LE(1, 4); // planes
+  entry.writeUInt16LE(32, 6); // bpp
+  entry.writeUInt32LE(f.data.length, 8);
+  entry.writeUInt32LE(offset, 12);
+  offset += f.data.length;
+  entries.push(entry);
+}
+
 fs.writeFileSync(
   path.join(outDir, "icon.ico"),
-  Buffer.concat([dir, entry, pngBuf])
+  Buffer.concat([dir, ...entries, ...frames.map((f) => f.data)])
 );
 
-console.log("wrote build/icon.png and build/icon.ico (" + pngBuf.length + " bytes png)");
+console.log(
+  "wrote build/icon.png and build/icon.ico (sizes: " +
+    frames.map((f) => f.size).join(", ") +
+    ")"
+);
